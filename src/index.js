@@ -1,12 +1,42 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import Login from './Screens/Login';
+import Search from './Screens/Search';
+import { setUsername } from './Redux/actions';
+import store from './Redux/store';
+import { Provider } from 'react-redux';
+import { Navbar } from 'react-bootstrap';
+import { connect } from 'react-redux';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+import { Route, HashRouter as Router } from 'react-router-dom';
+const onLogout = (dispatch) => {
+    dispatch(setUsername(''));
+    window.location.reload();
+}
+const Routing = ({ username, dispatch }) => (
+    <Router basename="/starwars-app" >
+        <div>
+            <Navbar>
+                <Navbar.Header>
+                    <Navbar.Brand>
+                        <a href="#home">Start Wars App</a>
+                    </Navbar.Brand>
+                    <Navbar.Toggle />
+                </Navbar.Header>
+                <Navbar.Collapse>
+                    <Navbar.Text>
+                        Signed in as: {username}
+                    </Navbar.Text>
+                    {username && <Navbar.Text pullRight> <Navbar.Link href="#" onClick={() => onLogout(dispatch)} >Logout</Navbar.Link> </Navbar.Text>}
+                </Navbar.Collapse>
+            </Navbar>;
+            <Route exact path="/" component={Login} />
+            <Route path="/search" component={Search} />
+        </div>
+    </Router>
+)
+const RoutingWithStore = connect(store => { return { username: store.reducer.username } })(Routing);
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+ReactDOM.render(<Provider store={store}><RoutingWithStore /></Provider>, document.getElementById('root'));
+
